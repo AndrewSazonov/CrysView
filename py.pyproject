@@ -4,6 +4,9 @@
       "examples/py_createQmlObject/main.qml",
 
       "examples/py_Repeater3D/main.py",
-      "examples/py_Repeater3D/main.qml"
+      "examples/py_Repeater3D/main.qml",
+
+      "examples/qml_RandomInstancing/main.py",
+      "examples/qml_RandomInstancing/main.qml"
     ]
 }

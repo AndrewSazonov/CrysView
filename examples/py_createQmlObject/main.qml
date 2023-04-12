@@ -203,7 +203,8 @@ ApplicationWindow {
             onClicked: {
                 atomsCountField.focus = false
                 proxy.atomsCount = atomsCountField.text !== '' ? atomsCountField.text : 1
-                proxy.createAtomsModel() }
+                proxy.createAtomsModel()
+            }
         }
         TextField {
             id: atomsCountField

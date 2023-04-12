@@ -30,7 +30,7 @@
 
 ## Examples
 
-#### With Python as a backend
+#### With logic defined in the Python backend
 
 ###### **py_Repeater3D**
 
@@ -54,7 +54,7 @@ Repeater3D {
 
 ###### **py_createQmlObject**
 
-Quick-and-dirty solution of creating list of atoms using `instancing` and `Qt.createQmlObject`. It works much faster compared to `Repeater3D` with relatively quick update for up to 1000-2000 of atoms. However, it needs more detailed analysis.
+A quick-and-dirty solution to create a list of atoms using `instancing` and `Qt.createQmlObject`. It is much faster compared to `Repeater3D` with relatively fast update for up to 1000-2000 of atoms. However, it requires more detailed analysis. One idea is to pass a reference to `InstanceList` to Python and recreate that list in Python when needed, instead of doing it in QML.
 ```
 Model {
   id: atoms
@@ -84,3 +84,40 @@ function createAtomsList() {
   return atoms
 }
 ```
+
+#### Without logic in Python
+
+###### **qml_RandomInstancing**
+
+An example using `RandomInstancing` type to generate a large number of random instances without calling the Python backend. Thus, this example should also work with the [`qml`](https://doc.qt.io/qt-6/qtquick-qml-runtime.html) runtime tool without Python at all. This is the fastest example. It works fine for up to 10000-20000 of atoms.
+```
+Model {
+  instancing: RandomInstancing {
+    instanceCount: atomsCount
+    position: InstanceRange {
+      from: Qt.vector3d(0, 0, 0)
+      to: Qt.vector3d(cellLengthA, cellLengthB, cellLengthC)
+    }
+    rotation: InstanceRange {
+        from: Qt.vector3d(0, 0, 0)
+        to: Qt.vector3d(360, 360, 360)
+    }
+    scale: InstanceRange {
+        from: Qt.vector3d(0.1, 0.1, 0.1)
+        to: Qt.vector3d(0.3, 0.3, 0.3)
+    }
+    color: InstanceRange {
+      from: Qt.rgba(0, 0, 0, 1)
+      to: Qt.rgba(1, 1, 1, 1)
+    }
+  }
+  source: "#Sphere"
+  materials: [ DefaultMaterial {} ]
+}
+```
+
+## Links
+
+* Examples: https://doc.qt.io/qt-6/quick3d-examples.html
+* Picking example: https://doc.qt.io/qt-6/qtquick3d-picking-main-qml.html
+* QtQuick3D instanced rendering: https://www.qt.io/blog/qtquick3d-instanced-rendering

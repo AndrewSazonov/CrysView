@@ -7,6 +7,8 @@ import QtQuick3D.Helpers
 ApplicationWindow {
     id: applicationWindow
 
+    property int atomsCount: 10
+
     property real mult: 30.0
     property real mult2: 100.0 / mult
     property real mult3: mult * mult2
@@ -14,10 +16,13 @@ ApplicationWindow {
     property real cellLengthA: 10.0
     property real cellLengthB: 6.0
     property real cellLengthC: 4.8
-    property real cellCilinderThickness: 0.025
+    property real cellCylinderThickness: 0.025
 
-    property real axesCilinderThickness: 0.05
+    property real axesCylinderThickness: 0.05
     property real axisConeScale: 0.2
+
+    property real magmomCylinderThickness: 0.05
+    property real magmomConeScale: 0.4
 
     visible: true
 
@@ -94,9 +99,9 @@ ApplicationWindow {
                 eulerRotation: Qt.vector3d(cell.model[index].rotx,
                                            cell.model[index].roty,
                                            cell.model[index].rotz)
-                scale: Qt.vector3d(cellCilinderThickness,
+                scale: Qt.vector3d(cellCylinderThickness,
                                    cell.model[index].len / mult2,
-                                   cellCilinderThickness)
+                                   cellCylinderThickness)
                 materials: [ DefaultMaterial { diffuseColor: "grey" } ]
             }
         }
@@ -119,9 +124,9 @@ ApplicationWindow {
                     eulerRotation: Qt.vector3d(axes.model[index].rotx,
                                                axes.model[index].roty,
                                                axes.model[index].rotz)
-                    scale: Qt.vector3d(axesCilinderThickness,
+                    scale: Qt.vector3d(axesCylinderThickness,
                                        axes.model[index].len / mult2,
-                                       axesCilinderThickness)
+                                       axesCylinderThickness)
                     materials: [ DefaultMaterial { diffuseColor: axes.model[index].color } ]
 
                 }
@@ -141,21 +146,67 @@ ApplicationWindow {
         // Axes
 
         // Atoms
-        Repeater3D {
-            id: atoms
-            model: proxy.atomsModel
-            Model {
-                source: "#Sphere"
-                position: Qt.vector3d(atoms.model[index].x * cellLengthA * mult,
-                                      atoms.model[index].y * cellLengthB * mult,
-                                      atoms.model[index].z * cellLengthC * mult)
-                scale: Qt.vector3d(atoms.model[index].diameter,
-                                   atoms.model[index].diameter,
-                                   atoms.model[index].diameter)
-                materials: [ DefaultMaterial { diffuseColor: atoms.model[index].color } ]
+        Model {
+            instancing: RandomInstancing {
+                id: atomsList
+                instanceCount: atomsCount
+                randomSeed: 1
+                position: InstanceRange {
+                    from: Qt.vector3d(0, 0, 0)
+                    to: Qt.vector3d(cellLengthA * mult, cellLengthB * mult, cellLengthC * mult)
+                }
+                rotation: InstanceRange {
+                    from: Qt.vector3d(0, 0, 0)
+                    to: Qt.vector3d(360, 360, 360)
+                }
+                scale: InstanceRange {
+                    from: Qt.vector3d(0.1, 0.1, 0.1)
+                    to: Qt.vector3d(0.3, 0.3, 0.3)
+                }
+                color: InstanceRange {
+                    from: Qt.rgba(0, 0, 0, 1)
+                    to: Qt.rgba(1, 1, 1, 1)
+                }
             }
+            source: "#Sphere"
+            materials: [ DefaultMaterial {} ]
         }
         // Atoms
+
+        // Magnetic moments
+        Node {
+            Model {
+                instancing: RandomInstancing {
+                    instanceCount: atomsCount
+                    randomSeed: atomsList.randomSeed
+                    position: atomsList.position
+                    rotation: atomsList.rotation
+                    scale: InstanceRange {
+                        from: Qt.vector3d(magmomCylinderThickness, 1.0 / mult2, magmomCylinderThickness)
+                        to: Qt.vector3d(magmomCylinderThickness, 3.0 / mult2, magmomCylinderThickness)
+                    }
+                    color: atomsList.color
+                }
+                source: "#Cylinder"
+                materials: [ DefaultMaterial {} ]
+            }
+            Model {
+                instancing: RandomInstancing {
+                    instanceCount: atomsCount
+                    randomSeed: atomsList.randomSeed
+                    position: atomsList.position
+                    rotation: atomsList.rotation
+                    scale: InstanceRange {
+                        from: Qt.vector3d(magmomConeScale, magmomConeScale, magmomConeScale)
+                        to: Qt.vector3d(magmomConeScale, magmomConeScale, magmomConeScale)
+                    }
+                    color: atomsList.color
+                }
+                source: "#Cone"
+                materials: [ DefaultMaterial {} ]
+            }
+        }
+        // Magnetic moments
 
         // Mouse area
         MouseArea {
@@ -183,8 +234,8 @@ ApplicationWindow {
             text: 'Generate'
             onClicked: {
                 atomsCountField.focus = false
-                proxy.atomsCount = atomsCountField.text !== '' ? atomsCountField.text : 1
-                proxy.createAtomsModel()
+                atomsList.randomSeed = Math.floor(Math.random() * 10000)
+                atomsCount = atomsCountField.text !== '' ? atomsCountField.text : 1
             }
         }
         TextField {
@@ -193,8 +244,8 @@ ApplicationWindow {
             horizontalAlignment: TextInput.AlignRight
             color: 'steelblue'
             font.bold: true
-            validator: RegularExpressionValidator { regularExpression: /^[1-9][0-9]{2}|[1-4][0-9]{3}|5000/ }
-            text: proxy.atomsCount
+            validator: RegularExpressionValidator { regularExpression: /^[1-9][0-9]{4}|100000/ }
+            text: atomsCount
         }
         Text {
             anchors.verticalCenter: parent.verticalCenter
@@ -205,4 +256,3 @@ ApplicationWindow {
     // Top bar
 
 }
-
