@@ -14,10 +14,13 @@ ApplicationWindow {
     property real cellLengthA: 10.0
     property real cellLengthB: 6.0
     property real cellLengthC: 4.8
-    property real cellCilinderThickness: 0.025
+    property real cellCylinderThickness: 0.025
 
-    property real axesCilinderThickness: 0.05
+    property real axesCylinderThickness: 0.05
     property real axisConeScale: 0.2
+
+    property real magmomCylinderThickness: 0.05
+    property real magmomConeScale: 0.4
 
     visible: true
 
@@ -94,9 +97,9 @@ ApplicationWindow {
                 eulerRotation: Qt.vector3d(cell.model[index].rotx,
                                            cell.model[index].roty,
                                            cell.model[index].rotz)
-                scale: Qt.vector3d(cellCilinderThickness,
+                scale: Qt.vector3d(cellCylinderThickness,
                                    cell.model[index].len / mult2,
-                                   cellCilinderThickness)
+                                   cellCylinderThickness)
                 materials: [ DefaultMaterial { diffuseColor: "grey" } ]
             }
         }
@@ -119,9 +122,9 @@ ApplicationWindow {
                     eulerRotation: Qt.vector3d(axes.model[index].rotx,
                                                axes.model[index].roty,
                                                axes.model[index].rotz)
-                    scale: Qt.vector3d(axesCilinderThickness,
+                    scale: Qt.vector3d(axesCylinderThickness,
                                        axes.model[index].len / mult2,
-                                       axesCilinderThickness)
+                                       axesCylinderThickness)
                     materials: [ DefaultMaterial { diffuseColor: axes.model[index].color } ]
 
                 }
@@ -142,7 +145,6 @@ ApplicationWindow {
 
         // Atoms
         Model {
-            id: atoms
             instancing: InstanceList {
                 id: atomsList
                 instances: createAtomsList()
@@ -151,6 +153,28 @@ ApplicationWindow {
             materials: [ DefaultMaterial {} ]
         }
         // Atoms
+
+        // Magnetic moments
+        Node {
+            Model {
+                instancing: InstanceList {
+                    id: cylindersList
+                    instances: createCylindersList()
+                }
+                source: "#Cylinder"
+                materials: [ DefaultMaterial {} ]
+            }
+
+            Model {
+                instancing: InstanceList {
+                    id: conesList
+                    instances: createConesList()
+                }
+                source: "#Cone"
+                materials: [ DefaultMaterial {} ]
+            }
+        }
+        // Magnetic moments
 
         // Mouse area
         MouseArea {
@@ -217,6 +241,44 @@ ApplicationWindow {
             atoms.push(instance)
         }
         return atoms
+    }
+
+    function createCylindersList() {
+        let cylinders = []
+        for (const atom of proxy.atomsModel) {
+            const instance = Qt.createQmlObject('import QtQuick3D; InstanceListEntry {}', atomsList)
+            instance.position = Qt.vector3d(atom.x * cellLengthA * mult,
+                                            atom.y * cellLengthB * mult,
+                                            atom.z * cellLengthC * mult)
+            instance.eulerRotation = Qt.vector3d(atom.mrotx,
+                                                 atom.mroty,
+                                                 atom.mrotz)
+            instance.scale = Qt.vector3d(magmomCylinderThickness,
+                                         atom.mlen / mult2,
+                                         magmomCylinderThickness)
+            instance.color = atom.color
+            cylinders.push(instance)
+        }
+        return cylinders
+    }
+
+    function createConesList() {
+        let cones = []
+        for (const atom of proxy.atomsModel) {
+            const instance = Qt.createQmlObject('import QtQuick3D; InstanceListEntry {}', atomsList)
+            instance.position = Qt.vector3d(atom.x * cellLengthA * mult,
+                                            atom.y * cellLengthB * mult,
+                                            atom.z * cellLengthC * mult)
+            instance.eulerRotation = Qt.vector3d(atom.mrotx,
+                                                 atom.mroty,
+                                                 atom.mrotz)
+            instance.scale = Qt.vector3d(magmomConeScale,
+                                         magmomConeScale,
+                                         magmomConeScale)
+            instance.color = atom.color
+            cones.push(instance)
+        }
+        return cones
     }
 
 }
