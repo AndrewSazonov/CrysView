@@ -37,16 +37,50 @@
 The most naive implementation using `Repeater3D` for displaying multiple atoms. Works fine for up to about 100 of atoms.
 ```
 Repeater3D {
-  model: pyModel
+  id: atoms
+  model: proxy.atomsModel
   Model {
+    source: "#Sphere"
+    position: Qt.vector3d(atoms.model[index].x,
+                          atoms.model[index].y,
+                          atoms.model[index].z)
+    scale: Qt.vector3d(atoms.model[index].diameter,
+                       atoms.model[index].diameter,
+                       atoms.model[index].diameter)
+    materials: [ DefaultMaterial { diffuseColor: atoms.model[index].color } ]
   }
 }
 ```
+
 ###### **py_createQmlObject**
 
-Quick-and-dirty solution of creating list of atoms via
+Quick-and-dirty solution of creating list of atoms using `instancing` and `Qt.createQmlObject`. It works much faster compared to `Repeater3D` with relatively quick update for up to 1000-2000 of atoms. However, it needs more detailed analysis.
 ```
-Qt.createQmlObject('import QtQuick3D
-                    InstanceListEntry {}')
+Model {
+  id: atoms
+  instancing: InstanceList {
+    id: atomsList
+    instances: createAtomsList()
+  }
+  source: "#Sphere"
+  materials: [ DefaultMaterial {} ]
+}
+
+function createAtomsList() {
+  let atoms = []
+  for (const atom of proxy.atomsModel) {
+    const instance = Qt.createQmlObject('import QtQuick3D
+                                         InstanceListEntry {}',
+                                         atomsList)
+    instance.position = Qt.vector3d(atom.x,
+                                    atom.y,
+                                    atom.z)
+    instance.scale = Qt.vector3d(atom.diameter,
+                                 atom.diameter,
+                                 atom.diameter)
+    instance.color = atom.color
+    atoms.push(instance)
+  }
+  return atoms
+}
 ```
-It works much faster compared to `Repeater3D`. Quick update for up to 1000-2000 of atoms. However, it needs more detailed analysis.
