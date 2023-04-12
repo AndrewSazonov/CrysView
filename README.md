@@ -20,7 +20,7 @@
   ```
 * Clone repo
   ```
-  git clone https://github.com/AndrewSazonov/QCrysVue.git
+  git clone https://github.com/AndrewSazonov/CrysView.git
   ```
 * Run example
   ```
@@ -34,7 +34,7 @@
 
 ###### **py_Repeater3D**
 
-The most naive implementation using `Repeater3D` for displaying multiple atoms. Works fine for up to about 1000-2000 of atoms.
+The most naive implementation using `Repeater3D` for displaying multiple atoms. Works fine for up to about 100 of atoms.
 ```
 Repeater3D {
   model: pyModel
@@ -49,4 +49,4 @@ Quick-and-dirty solution of creating list of atoms via
 Qt.createQmlObject('import QtQuick3D
                     InstanceListEntry {}')
 ```
-It works faster (?) compared to `Repeater3D`. Need more detailed analysis.
+It works much faster compared to `Repeater3D`. Quick update for up to 1000-2000 of atoms. However, it needs more detailed analysis.

@@ -1,5 +1,6 @@
 import sys
 import random
+from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal, Slot, Property
 from PySide6.QtWidgets import QApplication
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     proxy = Proxy()
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("proxy", proxy)
-    engine.load("main.qml")
+    engine.load(Path(__file__).parent.absolute() / "main.qml")
     if not engine.rootObjects():
         sys.exit(-1)
     sys.exit(app.exec())
