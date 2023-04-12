@@ -25,5 +25,28 @@
 * Run example
   ```
   cd CrysView
-  python main.py
+  python examples/EXAMPLE_NAME/main.py
   ```
+
+## Examples
+
+#### With Python as a backend
+
+###### **py_Repeater3D**
+
+The most naive implementation using `Repeater3D` for displaying multiple atoms. Works fine for up to about 1000-2000 of atoms.
+```
+Repeater3D {
+  model: pyModel
+  Model {
+  }
+}
+```
+###### **py_createQmlObject**
+
+Quick-and-dirty solution of creating list of atoms via
+```
+Qt.createQmlObject('import QtQuick3D
+                    InstanceListEntry {}')
+```
+It works faster (?) compared to `Repeater3D`. Need more detailed analysis.

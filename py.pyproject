@@ -1,6 +1,9 @@
 {
 "files": [
-      "main.py",
-      "main.qml"
+      "examples/py_createQmlObject/main.py",
+      "examples/py_createQmlObject/main.qml",
+
+      "examples/py_Repeater3D/main.py",
+      "examples/py_Repeater3D/main.qml"
     ]
 }
