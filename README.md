@@ -35,7 +35,7 @@
 ###### **py_Repeater3D**
 
 The most naive implementation using `Repeater3D` for displaying multiple atoms. Works fine for up to about 100 of atoms.
-```
+```qml
 Repeater3D {
   id: atoms
   model: proxy.atomsModel
@@ -55,7 +55,7 @@ Repeater3D {
 ###### **py_createQmlObject**
 
 A quick-and-dirty solution to create a list of atoms using `instancing` and `Qt.createQmlObject`. It is much faster compared to `Repeater3D` with relatively fast update for up to 1000-2000 of atoms. However, it requires more detailed analysis. One idea is to pass a reference to `InstanceList` to Python and recreate that list in Python when needed, instead of doing it in QML.
-```
+```qml
 Model {
   id: atoms
   instancing: InstanceList {
@@ -90,7 +90,7 @@ function createAtomsList() {
 ###### **qml_RandomInstancing**
 
 An example using `RandomInstancing` type to generate a large number of random instances without calling the Python backend. Thus, this example should also work with the [`qml`](https://doc.qt.io/qt-6/qtquick-qml-runtime.html) runtime tool without Python at all. This is the fastest example. It works fine for up to 10000-20000 of atoms.
-```
+```qml
 Model {
   instancing: RandomInstancing {
     instanceCount: atomsCount
